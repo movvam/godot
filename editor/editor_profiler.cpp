@@ -429,10 +429,10 @@ void EditorProfiler::dump_profiler() {
 		const Metric &m = frame_metrics[i];
 		if (!m.valid)
 			continue;
-		TreeItem *root = variables->create_item();
+		//TreeItem *root = variables->create_item();
 		for (int i = 0; i < m.categories.size(); i++) {
 
-			TreeItem *category = variables->create_item(root);
+			//TreeItem *category = variables->create_item(root);
 
 			for (int j = m.categories[i].items.size() - 1; j >= 0; j--) {
 				const Metric::Category::Item &it = m.categories[i].items[j];
