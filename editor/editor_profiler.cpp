@@ -33,6 +33,9 @@
 #include "core/os/os.h"
 #include "editor_scale.h"
 #include "editor_settings.h"
+#include <fstream>
+#include <iostream>
+
 
 void EditorProfiler::_make_metric_ptrs(Metric &m) {
 
@@ -414,11 +417,38 @@ void EditorProfiler::_update_frame() {
 				item->set_checked(0, true);
 				item->set_custom_color(0, _get_color_from_signature(it.signature));
 			}
+
 		}
 	}
 
 	updating_frame = false;
 }
+
+void EditorProfiler::dump_profiler() {
+	for (int i = 0; i < frame_metrics.size(); i++) {
+		const Metric &m = frame_metrics[i];
+		if (!m.valid)
+			continue;
+		TreeItem *root = variables->create_item();
+		for (int i = 0; i < m.categories.size(); i++) {
+
+			TreeItem *category = variables->create_item(root);
+
+			for (int j = m.categories[i].items.size() - 1; j >= 0; j--) {
+				const Metric::Category::Item &it = m.categories[i].items[j];
+
+				std::ofstream outfile;
+
+				outfile.open("profiler_output.txt", std::ios_base::app); // append instead of overwrite
+
+				printf("Name: %ls\n",String(it.name).c_str());
+				printf("Sig: %ls\n",String(it.signature).c_str());
+				printf("Count: %d\n",it.calls);
+				
+				outfile.close();
+			}}
+
+}}
 
 void EditorProfiler::_activate_pressed() {
 
@@ -428,6 +458,7 @@ void EditorProfiler::_activate_pressed() {
 	} else {
 		activate->set_icon(get_icon("Play", "EditorIcons"));
 		activate->set_text(TTR("Start"));
+        dump_profiler();
 	}
 	emit_signal("enable_profiling", activate->is_pressed());
 }

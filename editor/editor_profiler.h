@@ -133,6 +133,8 @@ private:
 
 	void _update_frame();
 
+	void dump_profiler();
+
 	void _activate_pressed();
 	void _clear_pressed();
 
