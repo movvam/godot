@@ -425,8 +425,12 @@ void EditorProfiler::_update_frame() {
 }
 
 void EditorProfiler::dump_profiler() {
-	for (int i = 0; i < frame_metrics.size(); i++) {
-		const Metric &m = frame_metrics[i];
+	FILE * outfile;
+	outfile = fopen("profiler_output.csv", "a"); // append instead of overwrite
+	fprintf(outfile, "sig, name, calls\n");
+
+	for (int mi = 0; mi < frame_metrics.size(); mi++) {
+		const Metric &m = frame_metrics[mi];
 		if (!m.valid)
 			continue;
 		//TreeItem *root = variables->create_item();
@@ -437,18 +441,19 @@ void EditorProfiler::dump_profiler() {
 			for (int j = m.categories[i].items.size() - 1; j >= 0; j--) {
 				const Metric::Category::Item &it = m.categories[i].items[j];
 
-				std::ofstream outfile;
+				// The "L" in front of the string represents a wide-character string since
+				// the String(it.thingy).c_str() returns a pointer to a wchar_t array
+				fwprintf(outfile,
+				         L"%ls,%ls,%d\n",
+						 String(it.signature).c_str(),
+						 String(it.name).c_str(),
+						 it.calls);
+			}
+		}
+	}
 
-				outfile.open("profiler_output.txt", std::ios_base::app); // append instead of overwrite
-
-				printf("Name: %ls\n",String(it.name).c_str());
-				printf("Sig: %ls\n",String(it.signature).c_str());
-				printf("Count: %d\n",it.calls);
-				
-				outfile.close();
-			}}
-
-}}
+	fclose(outfile);
+}
 
 void EditorProfiler::_activate_pressed() {
 
@@ -464,7 +469,7 @@ void EditorProfiler::_activate_pressed() {
 }
 
 void EditorProfiler::_clear_pressed() {
-
+	dump_profiler();
 	clear();
 	_update_plot();
 }
