@@ -136,6 +136,8 @@ private:
 	void _activate_pressed();
 	void _clear_pressed();
 
+	void dump_profiler();
+
 	String _get_time_as_text(const Metric &m, float p_time, int p_calls);
 
 	void _make_metric_ptrs(Metric &m);

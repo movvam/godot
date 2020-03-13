@@ -33,6 +33,8 @@
 #include "core/os/os.h"
 #include "editor_scale.h"
 #include "editor_settings.h"
+#include <fstream>
+#include <iostream>
 
 void EditorProfiler::_make_metric_ptrs(Metric &m) {
 
@@ -419,6 +421,36 @@ void EditorProfiler::_update_frame() {
 	updating_frame = false;
 }
 
+void EditorProfiler::dump_profiler() {
+	FILE * outfile;
+	outfile = fopen("profiler_output.csv", "a"); // append instead of overwrite
+	fprintf(outfile, "sig, name, calls\n");
+
+	for (int mi = 0; mi < frame_metrics.size(); mi++) {
+		const Metric &m = frame_metrics[mi];
+		if (!m.valid)
+			continue;
+		// TreeItem *root = variables->create_item();
+		for (int i = 0; i < m.categories.size(); i++) {
+
+			// TreeItem *category = variables->create_item(root);
+
+			for (int j = m.categories[i].items.size() - 1; j >= 0; j--) {
+				const Metric::Category::Item &it = m.categories[i].items[j];
+
+				 // The "L" in front of the string represents a wide-character string since
+				// the String(it.thingy).c_str() returns a pointer to a wchar_t array
+				fwprintf(outfile,
+				         L"%ls,%ls,%d\n",
+						 String(it.signature).c_str(),
+						 String(it.name).c_str(),
+						 it.calls);
+			}
+		}
+	}
+		fclose(outfile);
+}
+
 void EditorProfiler::_activate_pressed() {
 
 	if (activate->is_pressed()) {
@@ -427,12 +459,13 @@ void EditorProfiler::_activate_pressed() {
 	} else {
 		activate->set_icon(get_icon("Play", "EditorIcons"));
 		activate->set_text(TTR("Start"));
+	  dump_profiler();
 	}
 	emit_signal("enable_profiling", activate->is_pressed());
 }
 
 void EditorProfiler::_clear_pressed() {
-
+	dump_profiler();
 	clear();
 	_update_plot();
 }
