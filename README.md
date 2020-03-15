@@ -1,3 +1,7 @@
+**This Fork dumps the profiler output to attempt calculating code coverage on a function-by-function basis. **
+
+
+
 [![Godot Engine logo](/logo.png)](https://godotengine.org)
 
 ## Godot Engine
